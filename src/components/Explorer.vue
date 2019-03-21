@@ -28,8 +28,8 @@
         <div>Block Hash: {{ txObject.blockHash}}</div>
         <div>Block Number: {{ txObject.blockNumber}}</div>
         <div>Chain Id: {{ txObject.chainId}}</div>
-        <div>Condition: {{ txObject.condition}}</div>
-        <div>Creates: {{ txObject.creates}}</div>
+        <!-- <div>Condition: {{ txObject.condition}}</div>
+        <div>Creates: {{ txObject.creates}}</div>-->
         <div>From: {{ txObject.from}}</div>
         <div>Gas: {{ txObject.gas}}</div>
         <div>Gas Price: {{ txObject.gasPrice}}</div>
@@ -69,8 +69,8 @@ export default {
         blockHash: selectedHash.to,
         blockNumber: selectedHash.from,
         chainId: selectedHash.chainId,
-        condition: selectedHash.condition,
-        creates: selectedHash.creates,
+        // condition: selectedHash.condition,
+        // creates: selectedHash.creates,
         from: selectedHash.from,
         gas: selectedHash.gas,
         gasPrice: selectedHash.gasPrice,
@@ -86,11 +86,15 @@ export default {
         v: selectedHash.v,
         value: selectedHash.value
       };
-      //console.log(e.target.innerHTML);
+      // slicing the long values
+      Object.keys(this.txObject).map(k => {
+        if (this.txObject[k].length > 20) {
+          this.txObject[k] = this.txObject[k].slice(0, 30) + "....";
+        }
+      });
     },
 
     transactionsByAccount() {
-      console.log(this.hashes);
       getTxsByAccount(this.address);
       this.address = "";
     }
