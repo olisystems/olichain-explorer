@@ -54,7 +54,7 @@ export default {
 .search-bar > input[type="text"] {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  flex-basis: 50%;
+
   max-width: 450px;
   padding: 0.75rem;
   font-size: 1rem;

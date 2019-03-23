@@ -16,98 +16,127 @@
       </div>
     </div>
     <div class="main container">
-      <div class="hashes">
-        <div class="search-results">
-          Found {{ hashes.length }} results for the contract
+      <div class="accounts">
+        <div class="search-results overflow-text">
+          Found {{ accounts.length }} results for the contract
           <em>{{lastAddress}}.</em>
         </div>
-        <div v-for="(hash, index) in hashes" class="hash" v-bind:key="index">
-          <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-          <h4 v-on:click="getAccountTxHashes">{{ hash }}</h4>
+
+        <div class="main-column account-title">
+          <h2>Account Address</h2>
+          <div v-for="(account, index) in accounts" class="account" v-bind:key="index">
+            <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
+            <h4 v-on:click="getAccountTxHashes" class="overflow-text">{{ account }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="tx-hashes">
+        <div class="search-results overflow-text">
+          Found {{ accountTransactionsArray.length }} results for the account
+          <em>{{accountTitle}}.</em>
+        </div>
+        <div class="main-column hash-list">
+          <h2>Hashes</h2>
+          <div v-if="accountTransactionsArray.length">
+            <h4
+              v-on:click="getTxObject"
+              class="overflow-text"
+              v-for="(transaction, index) in accountTransactionsArray"
+              v-bind:key="index"
+            >{{transaction.hash}}</h4>
+          </div>
+          <div v-else>No account selected.</div>
         </div>
       </div>
 
       <div class="tx-object">
-        <h2>Transaction Object</h2>
-        <div v-if="Object.entries(txObject).length">
-          <div class="hash-object-div">
-            Block Hash:
-            <span>{{ txObject.blockHash}}</span>
-          </div>
-          <div class="hash-object-div">
-            Block Number:
-            <span>{{ txObject.blockNumber}}</span>
-          </div>
-          <div class="hash-object-div">
-            Chain Id:
-            <span>{{ txObject.chainId}}</span>
-          </div>
-          <!-- <div>Condition: {{ txObject.condition}}</div>
-          <div>Creates: {{ txObject.creates}}</div>-->
-          <div class="hash-object-div">
-            From:
-            <span>{{ txObject.from}}</span>
-          </div>
-          <div class="hash-object-div">
-            Gas:
-            <span>{{ txObject.gas}}</span>
-          </div>
-          <div class="hash-object-div">
-            Gas Price:
-            <span>{{ txObject.gasPrice}}</span>
-          </div>
-          <div class="hash-object-div">
-            Input:
-            <span>{{ txObject.input}}</span>
-          </div>
-          <div class="hash-object-div">
-            Nonce:
-            <span>{{ txObject.nonce}}</span>
-          </div>
-          <div class="hash-object-div">
-            Public Key:
-            <span>{{ txObject.publicKey}}</span>
-          </div>
-          <div class="hash-object-div">
-            R:
-            <span>{{ txObject.r}}</span>
-          </div>
-          <div class="hash-object-div">
-            Raw:
-            <span>{{ txObject.raw}}</span>
-          </div>
-          <div class="hash-object-div">
-            S:
-            <span>{{ txObject.s}}</span>
-          </div>
-          <div class="hash-object-div">
-            StandardV:
-            <span>{{ txObject.standardV}}</span>
-          </div>
-          <div class="hash-object-div">
-            To:
-            <span></span>
-            {{ txObject.to}}
-          </div>
-          <div class="hash-object-div">
-            Transaction Index:
-            <span>{{ txObject.transactionIndex}}</span>
-          </div>
-          <div class="hash-object-div">
-            V:
-            <span>{{ txObject.v}}</span>
-          </div>
-          <div class="hash-object-div">
-            Value:
-            <span>{{ txObject.value}}</span>
-          </div>
-          <div class="hash-stat">
-            The function hash for the selected hash is
-            <span class="hash-stat-span">{{ functionHash}}</span> and value is
-            <span class="hash-stat-span">{{ hashValue}}</span>.
-          </div>
+        <div class="search-results overflow-text">
+          Found {{ accountTransactionsArray.length }} results for the contract
+          <em>{{hashTitle}}.</em>
         </div>
-        <div v-else>No transaction hash selected.</div>
+        <div class="main-column tx-object-details">
+          <h2>Transaction Object</h2>
+          <div v-if="Object.entries(txObject).length">
+            <div class="hash-object-div overflow-text">
+              Block Hash:
+              <span>{{ txObject.blockHash}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Block Number:
+              <span>{{ txObject.blockNumber}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Chain Id:
+              <span>{{ txObject.chainId}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              From:
+              <span>{{ txObject.from}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Gas:
+              <span>{{ txObject.gas}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Gas Price:
+              <span>{{ txObject.gasPrice}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Input:
+              <span>{{ txObject.input}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Nonce:
+              <span>{{ txObject.nonce}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Public Key:
+              <span>{{ txObject.publicKey}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              R:
+              <span>{{ txObject.r}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Raw:
+              <span>{{ txObject.raw}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              S:
+              <span>{{ txObject.s}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              StandardV:
+              <span>{{ txObject.standardV}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              To:
+              <span></span>
+              {{ txObject.to}}
+            </div>
+            <div class="hash-object-div overflow-text">
+              Transaction Index:
+              <span>{{ txObject.transactionIndex}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              V:
+              <span>{{ txObject.v}}</span>
+            </div>
+            <div class="hash-object-div overflow-text last">
+              Value:
+              <span>{{ txObject.value}}</span>
+            </div>
+            <div class="hash-stat">
+              The function hash for the selected hash is
+              <span
+                class="hash-stat-span"
+              >{{ functionHash}}</span> and value is
+              <span class="hash-stat-span">{{ hashValue}}</span>.
+            </div>
+          </div>
+          <div v-else>No transaction hash selected.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -118,38 +147,80 @@ export default {
   name: "Explorer",
   data() {
     return {
-      hashes: [],
+      accounts: [],
       address: "0xB35ade92c443B3b111ddA47C6af8872110fB7a03",
       lastAddress: "",
+      accountTransactionsArray: [],
+      accountTitle: "",
+      hashTitle: "",
       txObject: {},
       functionHash: "",
       hashValue: ""
     };
   },
   methods: {
-    getTxObject: function(selectedHash) {
-      // this.tx = JSON.stringify(selectedItem, null, 2);
-      this.txObject = {
-        blockHash: selectedHash.to,
-        blockNumber: selectedHash.blockNumber,
-        chainId: selectedHash.chainId,
-        // condition: selectedHash.condition,
-        // creates: selectedHash.creates,
-        from: selectedHash.from,
-        gas: selectedHash.gas,
-        gasPrice: selectedHash.gasPrice,
-        input: selectedHash.input,
-        nonce: selectedHash.nonce,
-        publicKey: selectedHash.publicKey,
-        r: selectedHash.r,
-        raw: selectedHash.raw,
-        s: selectedHash.s,
-        standardV: selectedHash.standardV,
-        to: selectedHash.to,
-        transactionIndex: selectedHash.transactionIndex,
-        v: selectedHash.v,
-        value: selectedHash.value
-      };
+    transactionsByAccount: function() {
+      hashesArray = [];
+      accountsArray = [];
+      this.accounts = accountsArray;
+      getTxsByAccount(this.address);
+      this.lastAddress = this.address;
+      /*
+       * empty account title and account's transaction array
+       * for every new search
+       */
+      this.accountTitle = "";
+      this.accountTransactionsArray = [];
+      this.txObject = {};
+      this.hashTitle = "";
+    },
+    // get tx hashes for a particlar account
+    getAccountTxHashes: function() {
+      accountTransactions = [];
+      this.accountTransactionsArray = accountTransactions;
+      hashesArray.forEach(h => {
+        if (h.from === event.target.innerHTML) {
+          // create a new empty array and push transactions
+          accountTransactions.push(h);
+          this.accountTitle = event.target.innerHTML;
+        }
+      });
+    },
+    /*
+     * display all hashes selected account from the above function
+     * get tx object for selected hash
+     * modify the getTxObject method: instead of passing parameter, use event.target.innerHTML
+     * to compare with the array hashes accountTransactions from above function
+     */
+    getTxObject: function() {
+      accountTransactions.forEach(x => {
+        if (x.hash === event.target.innerHTML) {
+          // this.tx = JSON.stringify(selectedItem, null, 2);
+          this.txObject = {
+            blockHash: x.to,
+            blockNumber: x.blockNumber,
+            chainId: x.chainId,
+            // condition: x.condition,
+            // creates: x.creates,
+            from: x.from,
+            gas: x.gas,
+            gasPrice: x.gasPrice,
+            input: x.input,
+            nonce: x.nonce,
+            publicKey: x.publicKey,
+            r: x.r,
+            raw: x.raw,
+            s: x.s,
+            standardV: x.standardV,
+            to: x.to,
+            transactionIndex: x.transactionIndex,
+            v: x.v,
+            value: x.value
+          };
+          this.hashTitle = event.target.innerHTML;
+        }
+      });
+
       // getting function hash
       this.functionHash = this.txObject.input.slice(2, 10);
       // getting value sent
@@ -161,46 +232,12 @@ export default {
           )
       );
       // slicing the long values
-      Object.keys(this.txObject).map(k => {
-        if (this.txObject[k].length > 20) {
-          this.txObject[k] = this.txObject[k].slice(0, 30) + "....";
-        }
-      });
-    },
-    transactionsByAccount: function() {
-      hashesArray = [];
-      accountsArray = [];
-      this.hashes = accountsArray;
-      getTxsByAccount(this.address);
-      this.lastAddress = this.address;
-      //this.address = "";
-    },
-    // get tx hashes for a particlar account
-    getAccountTxHashes: function () {
-      accountTransactions = [];
-      hashesArray.forEach(h => {
-        if (h.from === event.target.innerHTML) {
-          // create a new empty array and push transactions
-          accountTransactions.push(h);
-        }
-
-      })
-      console.log(accountTransactions);
-    },
-
-    // display all hashes selected account from the above function
-    // get tx object for selected hash
-    // modify the getTxObject method: instead of passing parameter, use event.target.innerHTML
-    // to compare with the array hashes accountTransactions from above function
-
-    test: function () {
-      accountTransactions.forEach(x =>{
-        if (x.hash === event.target.innerHTML) {
-          console.log('kkk');
-        }
-      })
+      // Object.keys(this.txObject).map(k => {
+      //   if (this.txObject[k].length > 20) {
+      //     this.txObject[k] = this.txObject[k].slice(0, 30) + "....";
+      //   }
+      // });
     }
-
   },
   // default search on page load
   created: function() {
@@ -230,7 +267,7 @@ async function getTxsByAccount(
   }
   // check startBlockNumber
   if (startBlockNumber == null) {
-    startBlockNumber = endBlockNumber - 15;
+    startBlockNumber = endBlockNumber - 3;
   }
   // loop through the blocks to get block transactions
   for (let i = startBlockNumber; i <= endBlockNumber; i++) {
@@ -246,7 +283,9 @@ async function getTxsByAccount(
         // filter out transactions for a specific smart contract
         if (contractAddress == tx.to) {
           hashesArray.push(tx);
-          accountsArray.indexOf(tx.from) === -1 ? accountsArray.push(tx.from) : console.log("This item already exists");
+          accountsArray.indexOf(tx.from) === -1
+            ? accountsArray.push(tx.from)
+            : console.log("This item already exists");
         }
       });
     }
@@ -257,64 +296,70 @@ async function getTxsByAccount(
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .main {
+  width: auto;
   padding: 2rem;
   display: flex;
-  flex: 1;
   padding-bottom: 2rem;
-}
-.container {
-  margin: 0 auto;
-  width: 1100px;
-}
-
-.hashes {
-  flex: 3;
-}
-
-.tx-object {
-  display: flex;
-  flex: 2;
-  flex-direction: column;
-  /* background-color: #e0edf4; */
+  align-items: flex-start;
+  justify-content: space-between;
   color: #3e5252;
-  padding: 0.5rem;
-  padding-left: 2rem;
-  margin: 0.5rem;
+}
+
+.accounts,
+.tx-hashes,
+.tx-object {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
   overflow: auto;
 }
 
-.tx-object > h2 {
+.main-column {
+  padding: 20px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.account-title {
+  background-color: #c0dbe2;
+}
+.hash-list {
+  background-color: #cdf1c3;
+}
+.overflow-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tx-object-details {
+  background-color: #ccb9da;
+}
+
+h2 {
   font-size: 1.25rem;
   text-transform: uppercase;
   padding-bottom: 1rem;
   border-bottom: 2px solid black;
 }
 
-.hash {
-  display: flex;
-  flex-flow: row nowrap;
-  overflow: auto;
-  padding: 0.5rem;
-  padding-left: 2rem;
-  margin: 0.5rem;
-  background-color: #e0edf4;
-  /* background-color: #ffffff; */
-  color: #3e5252;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+h4 {
   cursor: pointer;
 }
+
 .hash-object-div {
   font-weight: bold;
 }
-span {
-  font-weight: normal;
+
+.last {
+  padding-bottom: 1rem;
 }
-.hash-stat-span {
-  font-weight: bold;
-  font-style: italic;
-}
+
 .hash-stat {
   padding-top: 1rem;
   border-top: 2px solid black;
+}
+
+span {
+  font-weight: normal;
 }
 </style>
