@@ -21,9 +21,9 @@
           Found {{ hashes.length }} results for the contract
           <em>{{lastAddress}}.</em>
         </div>
-        <div v-for="hash in hashes" class="hash" v-bind:key="hash.id">
+        <div v-for="(hash, index) in hashes" class="hash" v-bind:key="index">
           <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-          <h4 v-on:click="getTxObject(hash)">{{ hash }}</h4>
+          <h4 v-on:click="getAccountTxHashes">{{ hash }}</h4>
         </div>
       </div>
 
@@ -174,7 +174,33 @@ export default {
       getTxsByAccount(this.address);
       this.lastAddress = this.address;
       //this.address = "";
+    },
+    // get tx hashes for a particlar account
+    getAccountTxHashes: function () {
+      accountTransactions = [];
+      hashesArray.forEach(h => {
+        if (h.from === event.target.innerHTML) {
+          // create a new empty array and push transactions
+          accountTransactions.push(h);
+        }
+
+      })
+      console.log(accountTransactions);
+    },
+
+    // display all hashes selected account from the above function
+    // get tx object for selected hash
+    // modify the getTxObject method: instead of passing parameter, use event.target.innerHTML
+    // to compare with the array hashes accountTransactions from above function
+
+    test: function () {
+      accountTransactions.forEach(x =>{
+        if (x.hash === event.target.innerHTML) {
+          console.log('kkk');
+        }
+      })
     }
+
   },
   // default search on page load
   created: function() {
@@ -192,6 +218,7 @@ const $ = require("jquery");
 
 let hashesArray = [];
 let accountsArray = [];
+let accountTransactions = [];
 async function getTxsByAccount(
   contractAddress,
   startBlockNumber,
