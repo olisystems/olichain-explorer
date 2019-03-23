@@ -89,6 +89,13 @@ export default {
   text-align: center;
 }
 
+.test {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
 .btn {
   background-color: #108bea;
   border-radius: 2px;

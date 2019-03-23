@@ -9,10 +9,11 @@
           <input type="text" placeholder="Search for hashes" required v-model="address">
           <input type="submit" value="Search" class="btn">
         </form>
-        <p>
-          Enter
-          <em>smart contract's</em> address
-        </p>
+        <div class="day-picker">
+          <button class="increement" v-on:click="inc">+</button>
+          <p>Days: {{days}}</p>
+          <button class="increement" v-on:click="dec">-</button>
+        </div>
       </div>
     </div>
     <div class="main container">
@@ -155,7 +156,9 @@ export default {
       hashTitle: "",
       txObject: {},
       functionHash: "",
-      hashValue: ""
+      hashValue: "",
+      days: 3,
+      daysBlock: 2
     };
   },
   methods: {
@@ -163,7 +166,9 @@ export default {
       hashesArray = [];
       accountsArray = [];
       this.accounts = accountsArray;
-      getTxsByAccount(this.address);
+      this.days = 3;
+      this.daysBlock = 5;
+      getTxsByAccount(this.address, this.daysBlock);
       this.lastAddress = this.address;
       /*
        * empty account title and account's transaction array
@@ -237,6 +242,22 @@ export default {
       //     this.txObject[k] = this.txObject[k].slice(0, 30) + "....";
       //   }
       // });
+    },
+    inc: function() {
+      this.days++;
+      this.daysBlock += 2;
+      hashesArray = [];
+      getTxsByAccount(this.address, this.daysBlock);
+    },
+    dec: function(item) {
+      this.days--;
+      this.daysBlock -= 2;
+      hashesArray = [];
+      getTxsByAccount(this.address, this.daysBlock);
+      if (this.days <= 3) {
+        this.days = 3;
+        this.daysBlock = 5;
+      }
     }
   },
   // default search on page load
@@ -256,19 +277,18 @@ const $ = require("jquery");
 let hashesArray = [];
 let accountsArray = [];
 let accountTransactions = [];
-async function getTxsByAccount(
-  contractAddress,
-  startBlockNumber,
-  endBlockNumber
-) {
-  // check endBlockNumber is null
-  if (endBlockNumber == null) {
-    endBlockNumber = await web3.eth.getBlockNumber();
-  }
-  // check startBlockNumber
-  if (startBlockNumber == null) {
-    startBlockNumber = endBlockNumber - 3;
-  }
+async function getTxsByAccount(contractAddress, numberX) {
+  // // check endBlockNumber is null
+  // if (endBlockNumber == null) {
+  //   endBlockNumber = await web3.eth.getBlockNumber();
+  // }
+  // // check startBlockNumber
+  // if (startBlockNumber == null) {
+  //   startBlockNumber = endBlockNumber - 3;
+  // }
+
+  let endBlockNumber = await web3.eth.getBlockNumber();
+  let startBlockNumber = endBlockNumber - numberX;
   // loop through the blocks to get block transactions
   for (let i = startBlockNumber; i <= endBlockNumber; i++) {
     /*
@@ -283,6 +303,7 @@ async function getTxsByAccount(
         // filter out transactions for a specific smart contract
         if (contractAddress == tx.to) {
           hashesArray.push(tx);
+
           accountsArray.indexOf(tx.from) === -1
             ? accountsArray.push(tx.from)
             : console.log("This item already exists");
@@ -361,6 +382,33 @@ h4 {
 span {
   font-weight: normal;
 }
+
+.day-picker {
+  display: flex;
+  width: 30%;
+  align-items: center;
+  justify-content: space-between;
+  margin: auto;
+  font-size: 1.5em;
+}
+
+.increement {
+  /* border: 2px solid #f5f5f5; */
+  border: none;
+  border-radius: 50%;
+  text-align: center;
+  text-decoration: none;
+  font-size: 20px;
+  background-color: #154360;
+  color: #f5f5f5;
+  font-weight: bold;
+  padding: 0.5em;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+}
 @media (max-width: 950px) {
   h2 {
     text-align: center;
@@ -420,5 +468,13 @@ span {
   h2 {
     text-align: center;
   }
+
+  div.test > p {
+    font-size: 12px;
+  }
+}
+
+h4:hover {
+  color: orange;
 }
 </style>
