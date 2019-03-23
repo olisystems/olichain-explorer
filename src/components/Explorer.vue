@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="tx-hashes">
+      <div class="tx-hashes" v-if="accounts.length">
         <div class="search-results overflow-text">
           Found {{ accountTransactionsArray.length }} results for the account
           <em>{{accountTitle}}.</em>
@@ -50,9 +50,9 @@
         </div>
       </div>
 
-      <div class="tx-object">
+      <div class="tx-object" v-if="accountTransactionsArray.length">
         <div class="search-results overflow-text">
-          Found {{ accountTransactionsArray.length }} results for the contract
+          Showing results for
           <em>{{hashTitle}}.</em>
         </div>
         <div class="main-column tx-object-details">
@@ -296,7 +296,6 @@ async function getTxsByAccount(
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .main {
-  width: auto;
   padding: 2rem;
   display: flex;
   padding-bottom: 2rem;
@@ -361,5 +360,65 @@ h4 {
 
 span {
   font-weight: normal;
+}
+@media (max-width: 950px) {
+  h2 {
+    text-align: center;
+    font-size: 14px;
+  }
+  .main-column {
+    font-size: 12px;
+  }
+}
+@media (max-width: 700px) {
+  .header {
+    padding: 1rem 0;
+  }
+
+  .main {
+    padding: 2rem;
+    flex-direction: column;
+  }
+
+  .accounts,
+  .tx-hashes,
+  .tx-object {
+    padding: 1rem;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    text-align: center;
+  }
+
+  .main-column {
+    padding: 2rem;
+    font-size: 14px;
+  }
+
+  .tx-object {
+    text-align: left;
+  }
+
+  .title {
+    padding-bottom: 2rem;
+  }
+
+  .title > h1 {
+    font-size: 2rem;
+    margin: -7px 0 0 4px;
+  }
+
+  .search-bar > input[type="text"] {
+    flex-basis: 100%;
+  }
+
+  .search-results {
+    padding-bottom: 2rem;
+  }
+
+  h2 {
+    text-align: center;
+  }
 }
 </style>
