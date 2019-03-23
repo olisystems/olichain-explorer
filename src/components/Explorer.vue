@@ -23,7 +23,7 @@
         </div>
         <div v-for="hash in hashes" class="hash" v-bind:key="hash.id">
           <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-          <h4 v-on:click="getTxObject(hash)">{{ hash.from }}</h4>
+          <h4 v-on:click="getTxObject(hash)">{{ hash }}</h4>
         </div>
       </div>
 
@@ -169,7 +169,8 @@ export default {
     },
     transactionsByAccount: function() {
       hashesArray = [];
-      this.hashes = hashesArray;
+      accountsArray = [];
+      this.hashes = accountsArray;
       getTxsByAccount(this.address);
       this.lastAddress = this.address;
       //this.address = "";
@@ -190,6 +191,7 @@ const web3 = new Web3(
 const $ = require("jquery");
 
 let hashesArray = [];
+let accountsArray = [];
 async function getTxsByAccount(
   contractAddress,
   startBlockNumber,
@@ -201,7 +203,7 @@ async function getTxsByAccount(
   }
   // check startBlockNumber
   if (startBlockNumber == null) {
-    startBlockNumber = endBlockNumber - 3;
+    startBlockNumber = endBlockNumber - 15;
   }
   // loop through the blocks to get block transactions
   for (let i = startBlockNumber; i <= endBlockNumber; i++) {
@@ -217,7 +219,7 @@ async function getTxsByAccount(
         // filter out transactions for a specific smart contract
         if (contractAddress == tx.to) {
           hashesArray.push(tx);
-          console.log(tx);
+          accountsArray.indexOf(tx.from) === -1 ? accountsArray.push(tx.from) : console.log("This item already exists");
         }
       });
     }
