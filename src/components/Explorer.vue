@@ -303,10 +303,9 @@ async function getTxsByAccount(contractAddress, numberX) {
         // filter out transactions for a specific smart contract
         if (contractAddress == tx.to) {
           hashesArray.push(tx);
-
-          accountsArray.indexOf(tx.from) === -1
-            ? accountsArray.push(tx.from)
-            : console.log("This item already exists");
+          if (accountsArray.indexOf(tx.from) === -1) {
+            accountsArray.push(tx.from);
+          }
         }
       });
     }
