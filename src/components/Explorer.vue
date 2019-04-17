@@ -16,131 +16,136 @@
         </div>
       </div>
     </div>
-    <div class="main container">
-      <div class="accounts">
-        <div class="search-results overflow-text">
-          Found {{ accounts.length }} results for the contract
-          <em>{{lastAddress}}.</em>
-        </div>
-
-        <div class="main-column account-title">
-          <h2>Account Address</h2>
-          <div v-for="(account, index) in accounts" class="account" v-bind:key="index">
-            <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-            <h4 v-on:click="getAccountHashes" class="overflow-text">{{ account }}</h4>
-          </div>
-        </div>
+    <div class="main-body">
+      <div class="graph">
+        <h3>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h3>
       </div>
-
-      <div class="tx-hashes" v-if="accounts.length">
-        <div class="search-results overflow-text">
-          Found {{ accountHashes.length }} results for the account
-          <em>{{accountTitle}}.</em>
-        </div>
-        <div class="main-column hash-list">
-          <h2>Hashes</h2>
-          <div v-if="accountHashes.length">
-            <h4
-              v-on:click="getTxObject"
-              class="overflow-text"
-              v-for="(accountHashe, index) in accountHashes"
-              v-bind:key="index"
-            >{{accountHashe.hash}}</h4>
+      <div class="main container">
+        <div class="accounts">
+          <div class="search-results overflow-text">
+            Found {{ accounts.length }} results for the contract
+            <em>{{lastAddress}}.</em>
           </div>
-          <div v-else>No account selected.</div>
-        </div>
-      </div>
 
-      <div class="tx-object" v-if="accountHashes.length">
-        <div class="search-results overflow-text">
-          Showing results for
-          <em>{{hashTitle}}.</em>
-        </div>
-        <div class="main-column tx-object-details">
-          <h2>Transaction Object</h2>
-          <div v-if="Object.entries(txObject).length">
-            <div class="hash-object-div overflow-text">
-              Time:
-              <span>{{ txObject.time}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Hash:
-              <span>{{ txObject.hash}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Block Number:
-              <span>{{ txObject.blockNumber}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Chain Id:
-              <span>{{ txObject.chainId}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              From:
-              <span>{{ txObject.from}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Gas:
-              <span>{{ txObject.gas}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Gas Price:
-              <span>{{ txObject.gasPrice}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Input:
-              <span>{{ txObject.input}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Nonce:
-              <span>{{ txObject.nonce}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Public Key:
-              <span>{{ txObject.publicKey}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              R:
-              <span>{{ txObject.r}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              Raw:
-              <span>{{ txObject.raw}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              S:
-              <span>{{ txObject.s}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              StandardV:
-              <span>{{ txObject.standardV}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              To:
-              <span></span>
-              {{ txObject.to}}
-            </div>
-            <div class="hash-object-div overflow-text">
-              Transaction Index:
-              <span>{{ txObject.transactionIndex}}</span>
-            </div>
-            <div class="hash-object-div overflow-text">
-              V:
-              <span>{{ txObject.v}}</span>
-            </div>
-            <div class="hash-object-div overflow-text last">
-              Value:
-              <span>{{ txObject.value}}</span>
-            </div>
-            <div class="hash-stat">
-              The function hash for the selected hash is
-              <span
-                class="hash-stat-span"
-              >{{ functionHash}}</span> and value is
-              <span class="hash-stat-span">{{ hashValue}}</span>.
+          <div class="main-column account-title">
+            <h2>Account Address</h2>
+            <div v-for="(account, index) in accounts" class="account" v-bind:key="index">
+              <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
+              <h4 v-on:click="getAccountHashes" class="overflow-text">{{ account }}</h4>
             </div>
           </div>
-          <div v-else>No transaction hash selected.</div>
+        </div>
+
+        <div class="tx-hashes" v-if="accounts.length">
+          <div class="search-results overflow-text">
+            Found {{ accountHashes.length }} results for the account
+            <em>{{accountTitle}}.</em>
+          </div>
+          <div class="main-column hash-list">
+            <h2>Hashes</h2>
+            <div v-if="accountHashes.length" class="hash-list-div">
+              <h4
+                v-on:click="getTxObject"
+                class="overflow-text"
+                v-for="(accountHashe, index) in accountHashes"
+                v-bind:key="index"
+              >{{accountHashe.hash}}</h4>
+            </div>
+            <div v-else>No account selected.</div>
+          </div>
+        </div>
+
+        <div class="tx-object" v-if="accountHashes.length">
+          <div class="search-results overflow-text">
+            Showing results for
+            <em>{{hashTitle}}.</em>
+          </div>
+          <div class="main-column tx-object-details">
+            <h2>Transaction Object</h2>
+            <div v-if="Object.entries(txObject).length">
+              <div class="hash-object-div overflow-text">
+                Time:
+                <span>{{ txObject.time}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Hash:
+                <span>{{ txObject.hash}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Block Number:
+                <span>{{ txObject.blockNumber}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Chain Id:
+                <span>{{ txObject.chainId}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                From:
+                <span>{{ txObject.from}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Gas:
+                <span>{{ txObject.gas}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Gas Price:
+                <span>{{ txObject.gasPrice}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Input:
+                <span>{{ txObject.input}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Nonce:
+                <span>{{ txObject.nonce}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Public Key:
+                <span>{{ txObject.publicKey}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                R:
+                <span>{{ txObject.r}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                Raw:
+                <span>{{ txObject.raw}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                S:
+                <span>{{ txObject.s}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                StandardV:
+                <span>{{ txObject.standardV}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                To:
+                <span></span>
+                {{ txObject.to}}
+              </div>
+              <div class="hash-object-div overflow-text">
+                Transaction Index:
+                <span>{{ txObject.transactionIndex}}</span>
+              </div>
+              <div class="hash-object-div overflow-text">
+                V:
+                <span>{{ txObject.v}}</span>
+              </div>
+              <div class="hash-object-div overflow-text last">
+                Value:
+                <span>{{ txObject.value}}</span>
+              </div>
+              <div class="hash-stat">
+                The function hash for the selected hash is
+                <span
+                  class="hash-stat-span"
+                >{{ functionHash}}</span> and value is
+                <span class="hash-stat-span">{{ hashValue}}</span>.
+              </div>
+            </div>
+            <div v-else>No transaction hash selected.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -336,6 +341,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+.main-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-body h3 {
+  padding: 2rem;
+}
 .main {
   padding: 2rem;
   display: flex;
@@ -365,6 +378,14 @@ export default {
 }
 .hash-list {
   background-color: #cdf1c3;
+}
+.hash-list-div {
+  max-height: 396px;
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
 .overflow-text {
   overflow: hidden;
