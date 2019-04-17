@@ -5,7 +5,7 @@
         <div class="title">
           <h1>OLI Chain Explorer</h1>
         </div>
-        <form class="search-bar" @submit.prevent="transactionsByAccount">
+        <form class="search-bar" @submit.prevent="getAccounts">
           <input type="text" placeholder="Search for hashes" required v-model="address">
           <input type="submit" value="Search" class="btn">
         </form>
@@ -27,31 +27,31 @@
           <h2>Account Address</h2>
           <div v-for="(account, index) in accounts" class="account" v-bind:key="index">
             <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-            <h4 v-on:click="getAccountTxHashes" class="overflow-text">{{ account }}</h4>
+            <h4 v-on:click="getAccountHashes" class="overflow-text">{{ account }}</h4>
           </div>
         </div>
       </div>
 
       <div class="tx-hashes" v-if="accounts.length">
         <div class="search-results overflow-text">
-          Found {{ accountTransactionsArray.length }} results for the account
+          Found {{ accountHashes.length }} results for the account
           <em>{{accountTitle}}.</em>
         </div>
         <div class="main-column hash-list">
           <h2>Hashes</h2>
-          <div v-if="accountTransactionsArray.length">
+          <div v-if="accountHashes.length">
             <h4
               v-on:click="getTxObject"
               class="overflow-text"
-              v-for="(transaction, index) in accountTransactionsArray"
+              v-for="(accountHashe, index) in accountHashes"
               v-bind:key="index"
-            >{{transaction.hash}}</h4>
+            >{{accountHashe.hash}}</h4>
           </div>
           <div v-else>No account selected.</div>
         </div>
       </div>
 
-      <div class="tx-object" v-if="accountTransactionsArray.length">
+      <div class="tx-object" v-if="accountHashes.length">
         <div class="search-results overflow-text">
           Showing results for
           <em>{{hashTitle}}.</em>
@@ -60,8 +60,12 @@
           <h2>Transaction Object</h2>
           <div v-if="Object.entries(txObject).length">
             <div class="hash-object-div overflow-text">
-              Block Hash:
-              <span>{{ txObject.blockHash}}</span>
+              Time:
+              <span>{{ txObject.time}}</span>
+            </div>
+            <div class="hash-object-div overflow-text">
+              Hash:
+              <span>{{ txObject.hash}}</span>
             </div>
             <div class="hash-object-div overflow-text">
               Block Number:
@@ -144,6 +148,14 @@
 </template>
 
 <script>
+const $ = require("jquery");
+const Web3 = require("web3");
+// setting up the provider
+//const web3 = new Web3("ws://85.214.224.112:8547");
+const web3 = new Web3(
+  new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
+);
+
 export default {
   name: "Explorer",
   data() {
@@ -151,42 +163,91 @@ export default {
       accounts: [],
       address: "0xB35ade92c443B3b111ddA47C6af8872110fB7a03",
       lastAddress: "",
-      accountTransactionsArray: [],
       accountTitle: "",
+      hashes: [],
       hashTitle: "",
       txObject: {},
+      accountHashes: [],
+      transactionObjects: [],
       functionHash: "",
       hashValue: "",
       days: 3,
-      daysBlock: 2
+      blocksPerDay: 2
     };
   },
   methods: {
-    transactionsByAccount: function() {
-      hashesArray = [];
-      accountsArray = [];
-      this.accounts = accountsArray;
+    searchContract: async function(contractAddress, numberX) {
+      let endBlockNumber = await web3.eth.getBlockNumber();
+      let startBlockNumber = endBlockNumber - numberX;
+      // loop through the blocks to get block transactions
+      for (let i = startBlockNumber; i <= endBlockNumber; i++) {
+        /*
+         * If true, the returned block will contain all transactions as objects
+         * if false it will only contains the transaction hashes
+         * var block = await web3.eth.getBlock(i, true);
+         */
+        let block = await web3.eth.getBlock(i, true);
+        // filter out empty blocks
+        if (block.transactions.length != 0) {
+          block.transactions.forEach(tx => {
+            // filter out transactions for a specific smart contract
+            if (contractAddress == tx.to) {
+              this.hashes.push(tx);
+              this.transactionObjects.push({
+                hash: tx.hash,
+                time: block.timestamp,
+                blockHash: tx.to,
+                blockNumber: tx.blockNumber,
+                chainId: tx.chainId,
+                // condition: x.condition,
+                // creates: x.creates,
+                from: tx.from,
+                gas: tx.gas,
+                gasPrice: tx.gasPrice,
+                input: tx.input,
+                nonce: tx.nonce,
+                publicKey: tx.publicKey,
+                r: tx.r,
+                raw: tx.raw,
+                s: tx.s,
+                standardV: tx.standardV,
+                to: tx.to,
+                transactionIndex: tx.transactionIndex,
+                v: tx.v,
+                value: tx.value
+              });
+              // check if address already exists in array
+              if (this.accounts.indexOf(tx.from) === -1) {
+                this.accounts.push(tx.from);
+              }
+            }
+          });
+        }
+      }
+    },
+    getAccounts: function() {
+      this.hashes = [];
+      this.accounts = [];
       this.days = 3;
-      this.daysBlock = 5;
-      getTxsByAccount(this.address, this.daysBlock);
+      this.blocksPerDay = 5;
+      this.searchContract(this.address, this.blocksPerDay);
       this.lastAddress = this.address;
       /*
        * empty account title and account's transaction array
        * for every new search
        */
       this.accountTitle = "";
-      this.accountTransactionsArray = [];
+      this.accountHashes = [];
       this.txObject = {};
       this.hashTitle = "";
     },
     // get tx hashes for a particlar account
-    getAccountTxHashes: function() {
-      accountTransactions = [];
-      this.accountTransactionsArray = accountTransactions;
-      hashesArray.forEach(h => {
-        if (h.from === event.target.innerHTML) {
-          // create a new empty array and push transactions
-          accountTransactions.push(h);
+    getAccountHashes: function() {
+      this.accountHashes = [];
+      this.hashes.forEach(hash => {
+        if (hash.from === event.target.innerHTML) {
+          // create a new empty array and push accountHashes
+          this.accountHashes.push(hash);
           this.accountTitle = event.target.innerHTML;
         }
       });
@@ -195,32 +256,36 @@ export default {
      * display all hashes selected account from the above function
      * get tx object for selected hash
      * modify the getTxObject method: instead of passing parameter, use event.target.innerHTML
-     * to compare with the array hashes accountTransactions from above function
+     * to compare with the array hashes accountHashes from above function
      */
-    getTxObject: function() {
-      accountTransactions.forEach(x => {
-        if (x.hash === event.target.innerHTML) {
+
+    getTxObject: async function() {
+      this.transactionObjects.forEach(txObj => {
+        //seeg(x.blockNumber);
+        if (txObj.hash === event.target.innerHTML) {
           // this.tx = JSON.stringify(selectedItem, null, 2);
           this.txObject = {
-            blockHash: x.to,
-            blockNumber: x.blockNumber,
-            chainId: x.chainId,
+            hash: txObj.hash,
+            time: txObj.time,
+            blockHash: txObj.to,
+            blockNumber: txObj.blockNumber,
+            chainId: txObj.chainId,
             // condition: x.condition,
             // creates: x.creates,
-            from: x.from,
-            gas: x.gas,
-            gasPrice: x.gasPrice,
-            input: x.input,
-            nonce: x.nonce,
-            publicKey: x.publicKey,
-            r: x.r,
-            raw: x.raw,
-            s: x.s,
-            standardV: x.standardV,
-            to: x.to,
-            transactionIndex: x.transactionIndex,
-            v: x.v,
-            value: x.value
+            from: txObj.from,
+            gas: txObj.gas,
+            gasPrice: txObj.gasPrice,
+            input: txObj.input,
+            nonce: txObj.nonce,
+            publicKey: txObj.publicKey,
+            r: txObj.r,
+            raw: txObj.raw,
+            s: txObj.s,
+            standardV: txObj.standardV,
+            to: txObj.to,
+            transactionIndex: txObj.transactionIndex,
+            v: txObj.v,
+            value: txObj.value
           };
           this.hashTitle = event.target.innerHTML;
         }
@@ -229,7 +294,7 @@ export default {
       // getting function hash
       this.functionHash = this.txObject.input.slice(2, 10);
       // getting value sent
-      this.hashValue = Number(
+      this.hashValue = web3.utils.toDecimal(
         "0x" +
           this.txObject.input.slice(
             this.txObject.input.length - 6,
@@ -245,72 +310,28 @@ export default {
     },
     inc: function() {
       this.days++;
-      this.daysBlock += 2;
-      hashesArray = [];
-      getTxsByAccount(this.address, this.daysBlock);
+      this.blocksPerDay += 2;
+      this.hashes = [];
+      this.transactionObjects = [];
+      this.searchContract(this.address, this.blocksPerDay);
     },
-    dec: function(item) {
+    dec: function() {
       this.days--;
-      this.daysBlock -= 2;
-      hashesArray = [];
-      getTxsByAccount(this.address, this.daysBlock);
+      this.blocksPerDay -= 2;
+      this.hashes = [];
+      this.transactionObjects = [];
+      this.searchContract(this.address, this.blocksPerDay);
       if (this.days <= 3) {
         this.days = 3;
-        this.daysBlock = 5;
+        this.blocksPerDay = 5;
       }
     }
   },
   // default search on page load
   created: function() {
-    this.transactionsByAccount();
+    this.getAccounts();
   }
 };
-
-// setting up the provider
-const Web3 = require("web3");
-//const web3 = new Web3("ws://85.214.224.112:8547");
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
-);
-const $ = require("jquery");
-
-let hashesArray = [];
-let accountsArray = [];
-let accountTransactions = [];
-async function getTxsByAccount(contractAddress, numberX) {
-  // // check endBlockNumber is null
-  // if (endBlockNumber == null) {
-  //   endBlockNumber = await web3.eth.getBlockNumber();
-  // }
-  // // check startBlockNumber
-  // if (startBlockNumber == null) {
-  //   startBlockNumber = endBlockNumber - 3;
-  // }
-
-  let endBlockNumber = await web3.eth.getBlockNumber();
-  let startBlockNumber = endBlockNumber - numberX;
-  // loop through the blocks to get block transactions
-  for (let i = startBlockNumber; i <= endBlockNumber; i++) {
-    /*
-     * If true, the returned block will contain all transactions as objects
-     * if false it will only contains the transaction hashes
-     * var block = await web3.eth.getBlock(i, true);
-     */
-    let block = await web3.eth.getBlock(i, true);
-    // filter out empty blocks
-    if (block.transactions.length != 0) {
-      block.transactions.forEach(tx => {
-        // filter out transactions for a specific smart contract
-        if (contractAddress == tx.to) {
-          hashesArray.push(tx);
-          if (accountsArray.indexOf(tx.from) === -1) {
-            accountsArray.push(tx.from);
-          }
-        }
-      });
-    }
-  }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
