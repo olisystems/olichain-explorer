@@ -18,7 +18,13 @@
     </div>
     <div class="main-body">
       <div class="graph">
-        <h3>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h3>
+        <div>
+          <h3>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h3>
+        </div>
+
+        <div>
+          <button @click="download_csv">Download CSV</button>
+        </div>
       </div>
       <div class="main container">
         <div class="accounts">
@@ -27,11 +33,21 @@
             <em>{{lastAddress}}.</em>
           </div>
 
-          <div class="main-column account-title">
-            <h2>Account Address</h2>
-            <div v-for="(account, index) in accounts" class="account" v-bind:key="index">
+          <div class="main-column">
+            <div class="col-1 head-box">
+              <h2>Account Address</h2>
+            </div>
+
+            <div class="column-body">
+              <ol>
+                <li
+                  v-on:click="getAccountHashes"
+                  v-for="(account, index) in accounts"
+                  v-bind:key="index"
+                  class="overflow-text"
+                >{{ account }}</li>
+              </ol>
               <!-- <h4 v-on:click="getTxObject(hash)">{{ hash.title }}</h4> -->
-              <h4 v-on:click="getAccountHashes" class="overflow-text">{{ account }}</h4>
             </div>
           </div>
         </div>
@@ -41,28 +57,36 @@
             Found {{ accountHashes.length }} results for the account
             <em>{{accountTitle}}.</em>
           </div>
-          <div class="main-column hash-list">
-            <h2>Hashes</h2>
-            <div v-if="accountHashes.length" class="hash-list-div">
-              <h4
-                v-on:click="getTxObject"
-                class="overflow-text"
-                v-for="(accountHashe, index) in accountHashes"
-                v-bind:key="index"
-              >{{accountHashe.hash}}</h4>
+          <div class="main-column">
+            <div class="col-2 head-box">
+              <h2>Hashes</h2>
             </div>
-            <div v-else>No account selected.</div>
+
+            <div v-if="accountHashes.length" class="hash-list-div column-body">
+              <ol>
+                <li
+                  v-on:click="getTxObject"
+                  class="overflow-text"
+                  v-for="(accountHashe, index) in accountHashes"
+                  v-bind:key="index"
+                >{{accountHashe.hash}}</li>
+              </ol>
+            </div>
+            <div class="no-data" v-else>No account selected.</div>
           </div>
         </div>
 
         <div class="tx-object" v-if="accountHashes.length">
           <div class="search-results overflow-text">
-            Showing results for
+            Showing results for hash
             <em>{{hashTitle}}.</em>
           </div>
-          <div class="main-column tx-object-details">
-            <h2>Transaction Object</h2>
-            <div v-if="Object.entries(txObject).length">
+          <div class="main-column">
+            <div class="col-3 head-box">
+              <h2>Transaction Object</h2>
+            </div>
+
+            <div v-if="Object.entries(txObject).length" class="column-body">
               <div class="hash-object-div overflow-text">
                 Time:
                 <span>{{ txObject.time}}</span>
@@ -144,7 +168,7 @@
                 <span class="hash-stat-span">{{ hashValue}}</span>.
               </div>
             </div>
-            <div v-else>No transaction hash selected.</div>
+            <div class="no-data" v-else>No transaction hash selected.</div>
           </div>
         </div>
       </div>
@@ -160,6 +184,8 @@ const Web3 = require("web3");
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
 );
+
+import { timeConverter, currentTime } from "../assets/js/time-format.js";
 
 export default {
   name: "Explorer",
@@ -177,10 +203,51 @@ export default {
       functionHash: "",
       hashValue: "",
       days: 3,
-      blocksPerDay: 2
+      blocksPerDay: 2,
+      graphData: [],
+      test: []
     };
   },
   methods: {
+    download_csv: function() {
+      this.test = [];
+      let functionHashString;
+      let functionHash;
+      this.transactionObjects.forEach(hash => {
+        functionHash = hash.input.slice(2, 10);
+
+        switch (functionHash) {
+          case "f1f1ecb7":
+            functionHashString = "Energy Production";
+            break;
+          case "203aec33":
+            functionHashString = "Energy Consumption";
+            break;
+          default:
+            functionHashString = "Unknown";
+        }
+        this.test.push({
+          from: hash.from,
+          functionName: functionHashString,
+          value: web3.utils.toDecimal(
+            "0x" + hash.input.slice(hash.input.length - 6, hash.input.length)
+          ),
+          time: hash.time
+        });
+      });
+      let csv = "From, Function Hash, Value, Time\n";
+      //console.log(csv);
+      this.test.forEach(row => {
+        csv += Object.values(row);
+        csv += "\n";
+      });
+      console.log(csv);
+      var hiddenElement = document.createElement("a");
+      hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+      hiddenElement.target = "_blank";
+      hiddenElement.download = "people.csv";
+      hiddenElement.click();
+    },
     searchContract: async function(contractAddress, numberX) {
       let endBlockNumber = await web3.eth.getBlockNumber();
       let startBlockNumber = endBlockNumber - numberX;
@@ -200,7 +267,7 @@ export default {
               this.hashes.push(tx);
               this.transactionObjects.push({
                 hash: tx.hash,
-                time: block.timestamp,
+                time: timeConverter(block.timestamp),
                 blockHash: tx.to,
                 blockNumber: tx.blockNumber,
                 chainId: tx.chainId,
@@ -249,13 +316,45 @@ export default {
     // get tx hashes for a particlar account
     getAccountHashes: function() {
       this.accountHashes = [];
+      this.txObject = {};
+      this.hashTitle = "";
+      this.graphData = [];
       this.hashes.forEach(hash => {
         if (hash.from === event.target.innerHTML) {
-          // create a new empty array and push accountHashes
+          // push transaction hashes
           this.accountHashes.push(hash);
           this.accountTitle = event.target.innerHTML;
         }
       });
+      // create transaction object for each hash
+      this.accountHashes.forEach(accountHash => {
+        this.transactionObjects.forEach(txObj => {
+          /*
+           * from can not be compared because there are two froms
+           * for first match it will add both two froms
+           * then for 3nd match it will again add 2 froms
+           * hash can be matched because it is unique
+           */
+          if (accountHash.hash === txObj.hash) {
+            this.graphData.push({
+              // hash: txObj.hash,
+              from: txObj.from,
+              time: txObj.time,
+              input: web3.utils.toDecimal(
+                "0x" +
+                  txObj.input.slice(txObj.input.length - 6, txObj.input.length)
+              )
+            });
+          }
+        });
+      });
+
+      // removing the background color for ul-selected items
+      document.querySelectorAll(".column-body > ol>li").forEach(account => {
+        account.classList.remove("active");
+      });
+      // add background to selected account
+      event.target.classList.add("active");
     },
     /*
      * display all hashes selected account from the above function
@@ -292,6 +391,7 @@ export default {
             v: txObj.v,
             value: txObj.value
           };
+
           this.hashTitle = event.target.innerHTML;
         }
       });
@@ -299,7 +399,7 @@ export default {
       // getting function hash
       this.functionHash = this.txObject.input.slice(2, 10);
       // getting value sent
-      this.hashValue = web3.utils.toDecimal(
+      this.hashValue = web3.utils.hexToNumber(
         "0x" +
           this.txObject.input.slice(
             this.txObject.input.length - 6,
@@ -312,6 +412,13 @@ export default {
       //     this.txObject[k] = this.txObject[k].slice(0, 30) + "....";
       //   }
       // });
+
+      // removing the background color for ul-selected items
+      document.querySelectorAll(".hash-list-div > ol>li").forEach(account => {
+        account.classList.remove("active");
+      });
+      // add background to selected account
+      event.target.classList.add("active");
     },
     inc: function() {
       this.days++;
@@ -341,14 +448,26 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+h2 {
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+h4 {
+  cursor: pointer;
+}
 .main-body {
   display: flex;
   flex-direction: column;
 }
 
-.main-body h3 {
-  padding: 2rem;
+.graph {
+  display: flex;
+  margin: auto;
+  margin-top: 10px;
+  justify-content: space-between;
 }
+
 .main {
   padding: 2rem;
   display: flex;
@@ -367,20 +486,30 @@ export default {
   overflow: auto;
 }
 
-.main-column {
+.col-1 {
+  background-color: #c0dbe2;
+  margin-bottom: 0;
+}
+
+.head-box {
+  padding: 10px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+.column-body {
+  background: white;
   padding: 20px;
-  box-sizing: border-box;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
 }
 
-.account-title {
-  background-color: #c0dbe2;
+.main-column {
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
 }
-.hash-list {
+.col-2 {
   background-color: #cdf1c3;
 }
 .hash-list-div {
-  max-height: 396px;
+  max-height: 458px;
   overflow-y: auto;
 }
 
@@ -392,19 +521,11 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.tx-object-details {
+.col-3 {
   background-color: #ccb9da;
 }
-
-h2 {
-  font-size: 1.25rem;
-  text-transform: uppercase;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid black;
-}
-
-h4 {
-  cursor: pointer;
+.no-data {
+  margin-top: 2em;
 }
 
 .hash-object-div {
@@ -450,6 +571,44 @@ span {
 button:focus {
   outline: none;
 }
+
+ol {
+  margin: 0 0 0;
+  padding: 0;
+  counter-reset: item;
+  cursor: pointer;
+}
+
+ol > li {
+  padding: 1em;
+  list-style-type: none;
+  counter-increment: item;
+  transition: background-color 0.3s ease;
+  text-indent: -1em;
+  border-bottom: 1px solid #ccc;
+}
+
+li:last-child {
+  border: none;
+}
+
+ol > li:hover {
+  background: #f6f6f6;
+}
+
+ol > li:before {
+  display: inline-block;
+  width: 1.5em;
+  padding-right: 0.5em;
+  content: counter(item) ".";
+  text-align: right;
+  font-weight: bold;
+}
+
+.active {
+  background-color: #e4e3e3;
+  padding: 1em;
+}
 @media (max-width: 950px) {
   h2 {
     text-align: center;
@@ -481,7 +640,6 @@ button:focus {
   }
 
   .main-column {
-    padding: 2rem;
     font-size: 14px;
   }
 
@@ -513,9 +671,5 @@ button:focus {
   div.test > p {
     font-size: 12px;
   }
-}
-
-h4:hover {
-  color: orange;
 }
 </style>
