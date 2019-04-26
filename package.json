@@ -20,6 +20,7 @@
     "vue": "^2.6.6"
   },
   "devDependencies": {
+    "@statnett/vue-plotly": "^0.3.0",
     "@vue/cli-plugin-babel": "^3.5.0",
     "@vue/cli-plugin-eslint": "^3.5.0",
     "@vue/cli-service": "^3.6.0",
@@ -27,7 +28,11 @@
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
     "jquery": "^3.3.1",
+    "moment": "^2.24.0",
+    "plotly.js": "^1.47.3",
+    "plotly.js-dist": "^1.47.3",
     "vue-template-compiler": "^2.5.21",
+    "vuejs-datepicker": "^1.5.4",
     "web3": "^1.0.0-beta.50"
   },
   "eslintConfig": {

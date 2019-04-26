@@ -18,13 +18,22 @@
     </div>
     <div class="main-body">
       <div class="graph">
-        <div>
-          <h3>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h3>
+        <div class="test">
+          <h4>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h4>
+          <button @click="download_csv">Download CSV</button>
         </div>
 
         <div>
-          <button @click="download_csv">Download CSV</button>
+          <input type="date" v-model="startdate" :max="tease" v-on:input="teaser">
+          <span>{{startdate}}</span>
         </div>
+
+        <div>
+          <input type="date" v-model="enddate" disabled>
+          <span>{{enddate}}</span>
+        </div>
+
+        <div class="plot column-body" id="myDiv"></div>
       </div>
       <div class="main container">
         <div class="accounts">
@@ -178,6 +187,8 @@
 
 <script>
 const $ = require("jquery");
+const moment = require("moment");
+import Plotly from "plotly.js-dist";
 const Web3 = require("web3");
 // setting up the provider
 //const web3 = new Web3("ws://85.214.224.112:8547");
@@ -185,7 +196,11 @@ const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
 );
 
-import { timeConverter, currentTime } from "../assets/js/time-format.js";
+import {
+  timeConverter,
+  currentTime,
+  formatTime
+} from "../assets/js/time-format.js";
 
 export default {
   name: "Explorer",
@@ -202,20 +217,22 @@ export default {
       transactionObjects: [],
       functionHash: "",
       hashValue: "",
-      days: 3,
-      blocksPerDay: 2,
+      days: 1,
+      blocksPerDay: 10,
       graphData: [],
-      test: []
+      downloadData: [],
+      tease: new Date().toISOString().split("T")[0],
+      startdate: new Date().toISOString().split("T")[0],
+      enddate: new Date().toISOString().split("T")[0]
     };
   },
   methods: {
     download_csv: function() {
-      this.test = [];
+      this.downloadData = [];
       let functionHashString;
       let functionHash;
       this.transactionObjects.forEach(hash => {
         functionHash = hash.input.slice(2, 10);
-
         switch (functionHash) {
           case "f1f1ecb7":
             functionHashString = "Energy Production";
@@ -226,27 +243,89 @@ export default {
           default:
             functionHashString = "Unknown";
         }
-        this.test.push({
+        this.downloadData.push({
           from: hash.from,
           functionName: functionHashString,
           value: web3.utils.toDecimal(
             "0x" + hash.input.slice(hash.input.length - 6, hash.input.length)
           ),
-          time: hash.time
+          time: hash.time,
+          blockNumber: hash.blockNumber,
+          txHash: hash.hash
         });
       });
-      let csv = "From, Function Hash, Value, Time\n";
+      let csv =
+        "From, Function Hash, Value, Time, Block Number, Transaction Hash\n";
       //console.log(csv);
-      this.test.forEach(row => {
+      this.downloadData.forEach(row => {
         csv += Object.values(row);
         csv += "\n";
       });
-      console.log(csv);
-      var hiddenElement = document.createElement("a");
-      hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-      hiddenElement.target = "_blank";
-      hiddenElement.download = "people.csv";
-      hiddenElement.click();
+      let downloader = document.createElement("a");
+      downloader.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+      downloader.target = "_blank";
+      downloader.download = "data.csv";
+      downloader.click();
+    },
+    plot: function() {
+      function toDate(ts) {
+        return new Date(ts);
+      }
+      let time = [];
+      let input = [];
+      this.graphData.sort(function(a, b) {
+        // turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return new Date(a.time) - new Date(b.time);
+      });
+
+      this.graphData.forEach(data => {
+        time.push(data.time);
+        input.push(data.input);
+      });
+      var trace1 = {
+        mode: "lines+markers",
+        x: time.map(toDate),
+        y: input,
+        line: {
+          shape: "spline",
+          color: "#009933"
+        },
+        type: "scatter"
+      };
+
+      var data = [trace1];
+
+      var layout = {
+        title: "Energy Production Values",
+        font: { size: 12 },
+        xaxis: {
+          type: "date",
+          nticks: 5,
+          tickformat: "%H:%M:%S",
+          hoverformat: "%H:%M:%S",
+          linecolor: "lightgray",
+          linewidth: 0.5
+        },
+        yaxis: {
+          tickformat: ",d",
+          linecolor: "lightgray",
+          linewidth: 0.5,
+          titlefont: {
+            color: "black"
+          },
+          exponentformat: "e"
+        },
+        margin: {
+          l: 50,
+          r: 30,
+          b: 50,
+          t: 40,
+          pad: 4
+        }
+      };
+
+      Plotly.newPlot("myDiv", data, layout, { responsive: true });
     },
     searchContract: async function(contractAddress, numberX) {
       let endBlockNumber = await web3.eth.getBlockNumber();
@@ -261,6 +340,7 @@ export default {
         let block = await web3.eth.getBlock(i, true);
         // filter out empty blocks
         if (block.transactions.length != 0) {
+          //console.log(block);
           block.transactions.forEach(tx => {
             // filter out transactions for a specific smart contract
             if (contractAddress == tx.to) {
@@ -300,8 +380,8 @@ export default {
     getAccounts: function() {
       this.hashes = [];
       this.accounts = [];
-      this.days = 3;
-      this.blocksPerDay = 5;
+      this.days = 1;
+      this.blocksPerDay = 10;
       this.searchContract(this.address, this.blocksPerDay);
       this.lastAddress = this.address;
       /*
@@ -355,6 +435,7 @@ export default {
       });
       // add background to selected account
       event.target.classList.add("active");
+      this.plot();
     },
     /*
      * display all hashes selected account from the above function
@@ -421,21 +502,50 @@ export default {
       event.target.classList.add("active");
     },
     inc: function() {
-      this.days++;
-      this.blocksPerDay += 2;
-      this.hashes = [];
-      this.transactionObjects = [];
-      this.searchContract(this.address, this.blocksPerDay);
+      // this.days++;
+      // this.blocksPerDay += 2;
+      // this.hashes = [];
+      // this.transactionObjects = [];
+      // this.searchContract(this.address, this.blocksPerDay);
     },
     dec: function() {
-      this.days--;
-      this.blocksPerDay -= 2;
-      this.hashes = [];
-      this.transactionObjects = [];
-      this.searchContract(this.address, this.blocksPerDay);
-      if (this.days <= 3) {
-        this.days = 3;
-        this.blocksPerDay = 5;
+      // this.days--;
+      // this.blocksPerDay -= 2;
+      // this.hashes = [];
+      // this.transactionObjects = [];
+      // this.searchContract(this.address, this.blocksPerDay);
+      // if (this.days <= 3) {
+      //   this.days = 3;
+      //   this.blocksPerDay = 5;
+      // }
+    },
+
+    teaser: async function() {
+      //alert("Im teaser");
+
+      let dateA = moment(this.startdate, "YYYY-MM-DD"); // replace format by your one
+      let dateB = moment(this.enddate, "YYYY-MM-DD");
+      console.log(this.blocksPerDay);
+      if (dateA.diff(dateB) === 0) {
+        // do something if A is later than B
+
+        this.days = 1;
+        this.blocksPerDay = 10;
+        this.blocksPerDay *= this.days;
+        this.hashes = [];
+        this.transactionObjects = [];
+        this.searchContract(this.address, this.blocksPerDay);
+        alert("start date is greater");
+      } else {
+        // do something if B is later that A
+        this.days = dateB.diff(dateA, "days") + 1;
+        this.blocksPerDay = 10;
+        this.blocksPerDay *= this.days;
+        this.hashes = [];
+        this.transactionObjects = [];
+        this.searchContract(this.address, this.blocksPerDay);
+        console.log(this.days);
+        console.log(this.blocksPerDay);
       }
     }
   },
@@ -463,9 +573,31 @@ h4 {
 
 .graph {
   display: flex;
-  margin: auto;
-  margin-top: 10px;
+  flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  margin: auto;
+  width: 50%;
+  padding: 20px;
+}
+
+.plot {
+  min-height: 300px;
+  width: 100%;
+  margin-left: 0;
+}
+
+button {
+  padding: 10px;
+  border: 1px solid #013646;
+  border-radius: 2px;
+  background-color: #154360;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 1;
+  float: right;
 }
 
 .main {
@@ -609,6 +741,32 @@ ol > li:before {
   background-color: #e4e3e3;
   padding: 1em;
 }
+
+/* Remove increment and decrement icon from input field */
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type="date"] {
+  font-family: "PT Sans", sans-serif;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border: none;
+  border: 0.09rem solid #ccc;
+  -webkit-border-radius: 5px;
+  border-radius: 3px;
+  background: inherit;
+
+  width: 200px;
+  margin: 10px;
+
+  -webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
+  -moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
+  box-sizing: border-box;
+}
+
 @media (max-width: 950px) {
   h2 {
     text-align: center;
@@ -666,10 +824,6 @@ ol > li:before {
 
   h2 {
     text-align: center;
-  }
-
-  div.test > p {
-    font-size: 12px;
   }
 }
 </style>
