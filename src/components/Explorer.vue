@@ -288,7 +288,7 @@ export default {
         x: time.map(toDate),
         y: input,
         line: {
-          shape: "spline",
+          shape: "linear",
           color: "#009933"
         },
         type: "scatter"
