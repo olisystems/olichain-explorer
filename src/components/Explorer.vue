@@ -9,11 +9,6 @@
           <input type="text" placeholder="Search for hashes" required v-model="address">
           <input type="submit" value="Search" class="btn">
         </form>
-        <div class="day-picker">
-          <button class="increement" v-on:click="inc">+</button>
-          <p>Days: {{days}}</p>
-          <button class="increement" v-on:click="dec">-</button>
-        </div>
       </div>
     </div>
     <div class="main-body">
@@ -500,24 +495,6 @@ export default {
       });
       // add background to selected account
       event.target.classList.add("active");
-    },
-    inc: function() {
-      // this.days++;
-      // this.blocksPerDay += 2;
-      // this.hashes = [];
-      // this.transactionObjects = [];
-      // this.searchContract(this.address, this.blocksPerDay);
-    },
-    dec: function() {
-      // this.days--;
-      // this.blocksPerDay -= 2;
-      // this.hashes = [];
-      // this.transactionObjects = [];
-      // this.searchContract(this.address, this.blocksPerDay);
-      // if (this.days <= 3) {
-      //   this.days = 3;
-      //   this.blocksPerDay = 5;
-      // }
     },
 
     teaser: async function() {
