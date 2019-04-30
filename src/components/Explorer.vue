@@ -1,16 +1,23 @@
 <template>
   <div id="app">
-    <div class="header">
-      <div class="container">
-        <div class="title">
-          <h1>OLI Chain Explorer</h1>
+    <div class="container">
+      <form class="search-bar" @submit.prevent="getAccounts">
+        <input type="text" placeholder="Search for hashes" required v-model="address">
+        <input type="submit" value="Search" class="btn">
+      </form>
+
+      <div class="date-picker">
+        <div>
+          <span>Start Date</span>
+          <input type="date" v-model="startdate" :max="tease" v-on:input="teaser">
         </div>
-        <form class="search-bar" @submit.prevent="getAccounts">
-          <input type="text" placeholder="Search for hashes" required v-model="address">
-          <input type="submit" value="Search" class="btn">
-        </form>
+        <div>
+          <span>End Date</span>
+          <input type="date" v-model="enddate" disabled>
+        </div>
       </div>
     </div>
+
     <div class="main-body">
       <div class="graph">
         <div class="test">
@@ -18,19 +25,9 @@
           <button @click="download_csv">Download CSV</button>
         </div>
 
-        <div>
-          <input type="date" v-model="startdate" :max="tease" v-on:input="teaser">
-          <span>{{startdate}}</span>
-        </div>
-
-        <div>
-          <input type="date" v-model="enddate" disabled>
-          <span>{{enddate}}</span>
-        </div>
-
         <div class="plot column-body" id="myDiv"></div>
       </div>
-      <div class="main container">
+      <div class="main">
         <div class="accounts">
           <div class="search-results overflow-text">
             Found {{ accounts.length }} results for the contract
@@ -543,6 +540,109 @@ h2 {
 h4 {
   cursor: pointer;
 }
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgb(235, 231, 231);
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  border-left: 0;
+  border-right: 0;
+  margin-bottom: 1rem;
+}
+
+.search-bar > input {
+  border-radius: 2px;
+}
+
+.search-bar > input[type="text"] {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  flex-basis: 50%;
+  max-width: 450px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #e9e9e9;
+  border-right: none;
+}
+
+.search-bar > input[type="submit"] {
+  background-color: #fdd922;
+  color: #333333;
+  padding: 1rem;
+  border: 1px solid #e0bc27;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+}
+
+input[type="date"] {
+  font-family: "PT Sans", sans-serif;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border: none;
+  border: 0.09rem solid #ccc;
+  -webkit-border-radius: 5px;
+  border-radius: 3px;
+  width: 200px;
+  margin: 10px;
+}
+
+/* Remove increment and decrement icon from input field */
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.search-results {
+  padding-bottom: 1rem;
+}
+
+.search-results,
+.search-term {
+  font-style: italic;
+}
+
+.header p {
+  font-size: 0.8em;
+  color: white;
+  text-align: center;
+}
+
+.btn {
+  background-color: #108bea;
+  border-radius: 2px;
+  color: white;
+  user-select: none;
+  border: none;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.btn:hover {
+  background-color: #0f6cb2;
+}
+
+.btn:active {
+  opacity: 0.8;
+}
+
 .main-body {
   display: flex;
   flex-direction: column;
@@ -654,29 +754,6 @@ span {
   font-weight: normal;
 }
 
-.day-picker {
-  display: flex;
-  width: 30%;
-  align-items: center;
-  justify-content: space-between;
-  margin: auto;
-  font-size: 1.5em;
-}
-
-.increement {
-  /* border: 2px solid #f5f5f5; */
-  border: none;
-  border-radius: 50%;
-  text-align: center;
-  text-decoration: none;
-  font-size: 20px;
-  background-color: #154360;
-  color: #f5f5f5;
-  font-weight: bold;
-  padding: 0.5em;
-  cursor: pointer;
-}
-
 button:focus {
   outline: none;
 }
@@ -719,31 +796,6 @@ ol > li:before {
   padding: 1em;
 }
 
-/* Remove increment and decrement icon from input field */
-
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-}
-
-input[type="date"] {
-  font-family: "PT Sans", sans-serif;
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  border: none;
-  border: 0.09rem solid #ccc;
-  -webkit-border-radius: 5px;
-  border-radius: 3px;
-  background: inherit;
-
-  width: 200px;
-  margin: 10px;
-
-  -webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
-  -moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
-  box-sizing: border-box;
-}
-
 @media (max-width: 950px) {
   h2 {
     text-align: center;
@@ -754,10 +806,14 @@ input[type="date"] {
   }
 }
 @media (max-width: 700px) {
-  .header {
-    padding: 1rem 0;
+  .date-picker {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
+}
 
+@media (max-width: 700px) {
   .main {
     padding: 2rem;
     flex-direction: column;
