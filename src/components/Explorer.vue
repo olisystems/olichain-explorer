@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="container">
+    <div class="search-container">
       <form class="search-bar" @submit.prevent="getAccounts">
         <input type="text" placeholder="Search for hashes" required v-model="address">
         <input type="submit" value="Search" class="btn">
@@ -19,14 +19,6 @@
     </div>
 
     <div class="main-body">
-      <div class="graph">
-        <div class="test">
-          <h4>{{hashes.length}} Transactions found within {{blocksPerDay}} blocks from last {{days}} days.</h4>
-          <button @click="download_csv">Download CSV</button>
-        </div>
-
-        <div class="plot column-body" id="myDiv"></div>
-      </div>
       <div class="main">
         <div class="accounts">
           <div class="search-results overflow-text">
@@ -53,6 +45,44 @@
           </div>
         </div>
 
+        <div class="stat">
+          <div class="top-stat">
+            <div class="total-tx">
+              <div class="top-bar-box head-col1">
+                <h4>Total Transactions</h4>
+              </div>
+              <div class="top-bar-box stats-box">
+                <h3 class="stats">{{hashes.length}}</h3>
+              </div>
+            </div>
+
+            <div class="total-energy-production top-bar-col">
+              <div class="top-bar-box head-col2">
+                <h4>Total Blocks</h4>
+              </div>
+              <div class="top-bar-box stats-box">
+                <h3 class="stats">{{blocksPerDay}}</h3>
+              </div>
+            </div>
+
+            <div class="total-minted-coins top-bar-col">
+              <div class="top-bar-box head-col3">
+                <h4>Total Day(s)</h4>
+              </div>
+              <div class="top-bar-box stats-box">
+                <h3 class="stats">{{days}}</h3>
+              </div>
+            </div>
+            <div class="download-btn">
+              <button @click="download_csv">Download CSV</button>
+            </div>
+          </div>
+          <div class="graph">
+            <div class="plot column-body" id="myDiv"></div>
+          </div>
+        </div>
+      </div>
+      <div>
         <div class="tx-hashes" v-if="accounts.length">
           <div class="search-results overflow-text">
             Found {{ accountHashes.length }} results for the account
@@ -537,11 +567,7 @@ h2 {
   text-transform: uppercase;
 }
 
-h4 {
-  cursor: pointer;
-}
-
-.container {
+.search-container {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -604,7 +630,6 @@ input[type="date"] {
 }
 
 /* Remove increment and decrement icon from input field */
-
 input[type="date"]::-webkit-inner-spin-button,
 input[type="date"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -619,49 +644,38 @@ input[type="date"]::-webkit-outer-spin-button {
   font-style: italic;
 }
 
-.header p {
-  font-size: 0.8em;
-  color: white;
-  text-align: center;
-}
-
-.btn {
-  background-color: #108bea;
-  border-radius: 2px;
-  color: white;
-  user-select: none;
-  border: none;
-  cursor: pointer;
-  opacity: 1;
-}
-
-.btn:hover {
-  background-color: #0f6cb2;
-}
-
-.btn:active {
-  opacity: 0.8;
-}
-
 .main-body {
   display: flex;
   flex-direction: column;
 }
 
-.graph {
+.main {
+  padding: 2rem;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  margin: auto;
-  width: 50%;
-  padding: 20px;
+  color: #3e5252;
 }
 
-.plot {
-  min-height: 300px;
+.accounts {
+  width: 40%;
+}
+
+.stat {
+  width: 55%;
+}
+
+.top-stat {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  align-items: center;
+  margin: auto;
   width: 100%;
-  margin-left: 0;
+}
+
+.download-btn {
+  display: flex;
 }
 
 button {
@@ -671,22 +685,50 @@ button {
   background-color: #154360;
   color: white;
   font-size: 0.8rem;
-  font-weight: bold;
   cursor: pointer;
-  opacity: 1;
-  float: right;
 }
 
-.main {
-  padding: 2rem;
+.top-bar-box {
+  background: white;
+  padding: 2px 20px;
+  -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.head-col1 {
+  background-color: #cdf1c3;
+  margin-bottom: 0;
+}
+
+.head-col2 {
+  background-color: #c0dbe2;
+  margin-bottom: 0;
+}
+
+.head-col3 {
+  background-color: #ccb9da;
+  margin-bottom: 0;
+}
+
+.stats {
+  color: #6b81ad;
+  font-weight: bold;
+  font-size: 24px;
+}
+.graph {
   display: flex;
-  padding-bottom: 2rem;
-  align-items: flex-start;
+  flex-direction: column;
   justify-content: space-between;
-  color: #3e5252;
+  align-items: center;
+  padding: 20px;
 }
 
-.accounts,
+.plot {
+  min-height: 300px;
+  width: 100%;
+  padding: 20px;
+}
+
 .tx-hashes,
 .tx-object {
   width: 30%;
@@ -704,6 +746,7 @@ button {
   padding: 10px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
 }
+
 .column-body {
   background: white;
   padding: 20px;
@@ -714,9 +757,11 @@ button {
   box-sizing: border-box;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
 }
+
 .col-2 {
   background-color: #cdf1c3;
 }
+
 .hash-list-div {
   max-height: 458px;
   overflow-y: auto;
@@ -725,14 +770,17 @@ button {
 ::-webkit-scrollbar {
   display: none;
 }
+
 .overflow-text {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
 .col-3 {
   background-color: #ccb9da;
 }
+
 .no-data {
   margin-top: 2em;
 }
