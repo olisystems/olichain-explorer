@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import Explorer from "./Explorer.vue";
 export default {
   name: "Header"
 };
