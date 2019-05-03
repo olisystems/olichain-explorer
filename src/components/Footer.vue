@@ -1,5 +1,19 @@
 <template>
-  <div class="footer">&copy; OLI Systems GmbH</div>
+  <div class="footer">
+    <div class="social">
+      <a class="icon-twitter" title="Twitter" href="#">
+        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'twitter' }"/>
+      </a>
+      <a class="icon-facebook" title="Facebook" href="#">
+        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'facebook' }"/>
+      </a>
+      <a class="icon-github" title="Github" href="#">
+        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'github' }"/>
+      </a>
+    </div>
+
+    <p>&copy; OLI Systems GmbH</p>
+  </div>
 </template>
 
 <script>
@@ -12,15 +26,35 @@ export default {
 .footer {
   text-align: center;
   background-color: #404040;
-  padding: 2em;
-  color: rgb(190, 185, 185);
+
+  color: rgb(228, 222, 222);
+}
+.footer .social {
+  padding-top: 1.5em;
 }
 
-.footer a {
+.footer .social a {
   display: inline-block;
   overflow: hidden;
-  width: 24px;
-  height: 24px;
-  margin: 0 5px;
+  width: 20px;
+  height: 20px;
+  margin: 0 10px;
+}
+
+#app div.footer .social > a > svg {
+  width: 20px;
+  height: 20px;
+}
+
+#app > div.footer .social > a.icon-facebook > svg:hover {
+  color: #3d5b99;
+}
+
+#app > div.footer .social > a.icon-twitter > svg:hover {
+  color: #00aced;
+}
+
+#app > div.footer .social > a.icon-github > svg:hover {
+  color: #86888b;
 }
 </style>
