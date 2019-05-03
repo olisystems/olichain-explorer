@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-      <div>
+      <div class="hashes">
         <div class="tx-hashes" v-if="accounts.length">
           <div class="search-results overflow-text">
             Found {{ accountHashes.length }} results for the account
@@ -661,6 +661,11 @@ input[type="date"]::-webkit-outer-spin-button {
   width: 40%;
 }
 
+.col-1 {
+  background-color: #c0dbe2;
+  margin-bottom: 0;
+}
+
 .stat {
   width: 55%;
 }
@@ -729,17 +734,18 @@ button {
   padding: 20px;
 }
 
-.tx-hashes,
-.tx-object {
-  width: 30%;
+.hashes {
   display: flex;
-  flex-direction: column;
-  overflow: auto;
+  justify-content: space-between;
+  padding: 2rem;
+  background: rgb(235, 231, 231);
 }
 
-.col-1 {
-  background-color: #c0dbe2;
-  margin-bottom: 0;
+.tx-hashes,
+.tx-object {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
 }
 
 .head-box {
@@ -783,6 +789,7 @@ button {
 
 .no-data {
   margin-top: 2em;
+  padding: 0.5rem;
 }
 
 .hash-object-div {
