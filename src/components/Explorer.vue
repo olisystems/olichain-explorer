@@ -674,9 +674,8 @@ input[type="date"]::-webkit-outer-spin-button {
   display: flex;
   justify-content: space-between;
   text-align: center;
-  align-items: center;
   margin: auto;
-  width: 100%;
+  align-items: flex-end;
 }
 
 .download-btn {
