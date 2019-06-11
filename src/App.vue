@@ -2,18 +2,21 @@
   <div id="app">
     <Header/>
     <Explorer/>
+    <Footer/>
   </div>
 </template>
 
 <script>
 import Header from "./components/Header.vue";
 import Explorer from "./components/Explorer.vue";
+import Footer from "./components/Footer.vue";
 
 export default {
   name: "app",
   components: {
     Header,
-    Explorer
+    Explorer,
+    Footer
   }
 };
 </script>

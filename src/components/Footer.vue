@@ -2,13 +2,13 @@
   <div class="footer">
     <div class="social">
       <a class="icon-twitter" title="Twitter" href="#">
-        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'twitter' }"/>
+        <font-awesome-icon :icon="['fab', 'twitter']"/>
       </a>
       <a class="icon-facebook" title="Facebook" href="#">
-        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'facebook' }"/>
+        <font-awesome-icon :icon="['fab', 'facebook']"/>
       </a>
       <a class="icon-github" title="Github" href="#">
-        <font-awesome-icon :icon="{ prefix: 'fab', iconName: 'github' }"/>
+        <font-awesome-icon :icon="['fab', 'github']"/>
       </a>
     </div>
 
