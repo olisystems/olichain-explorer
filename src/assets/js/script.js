@@ -4,9 +4,9 @@ import accounts from '../../components/Explorer.vue';
 const Web3 = require("web3");
 //const web3 = new Web3("ws://85.214.224.112:8547");
 const web3 = new Web3(
-    new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
+  new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
 );
-const $ = require("jquery");
+
 let block;
 let hashesArray = [];
 let accountsArray = [];
@@ -45,6 +45,5 @@ export default async function getTxsByAccount(contractAddress, numberX) {
   }
 }
 
-let test = [];
 
 
