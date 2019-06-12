@@ -9,7 +9,7 @@
       <div class="date-picker">
         <div>
           <span>Start Date</span>
-          <input type="date" v-model="startdate" :max="tease" v-on:input="teaser">
+          <input type="date" v-model="startdate" :max="maxDate" v-on:input="checkStartDate">
         </div>
         <div>
           <span>End Date</span>
@@ -78,7 +78,11 @@
             </div>
           </div>
           <div class="graph">
-            <div class="plot column-body" id="myDiv"></div>
+            <div class="plot column-body" id="plot" v-if="accounts.length">
+              <div class="placeholder">
+                <h5>select an account to view the history</h5>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -105,6 +109,27 @@
             </div>
             <div class="no-data" v-else>No account selected.</div>
           </div>
+
+          <div class="hash-stat">
+            <p>The selected hash:</p>
+
+            <table class="details-table hash-stat-table">
+              <tbody>
+                <tr>
+                  <th class="hash-stat-name">Function Hash:</th>
+                  <td class="hash-stat-value">{{functionHash}}</td>
+                </tr>
+                <tr>
+                  <th class="hash-stat-name">Type:</th>
+                  <td class="hash-stat-value">{{functionName}}</td>
+                </tr>
+                <tr>
+                  <th class="hash-stat-name">Value:</th>
+                  <td class="hash-stat-value">{{hashValue}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="tx-object" v-if="accountHashes.length">
@@ -118,88 +143,86 @@
             </div>
 
             <div v-if="Object.entries(txObject).length" class="column-body">
-              <div class="hash-object-div overflow-text">
-                Time:
-                <span>{{ txObject.time}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Hash:
-                <span>{{ txObject.hash}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Block Number:
-                <span>{{ txObject.blockNumber}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Chain Id:
-                <span>{{ txObject.chainId}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                From:
-                <span>{{ txObject.from}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Gas:
-                <span>{{ txObject.gas}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Gas Price:
-                <span>{{ txObject.gasPrice}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Input:
-                <span>{{ txObject.input}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Nonce:
-                <span>{{ txObject.nonce}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Public Key:
-                <span>{{ txObject.publicKey}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                R:
-                <span>{{ txObject.r}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                Raw:
-                <span>{{ txObject.raw}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                S:
-                <span>{{ txObject.s}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                StandardV:
-                <span>{{ txObject.standardV}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                To:
-                <span></span>
-                {{ txObject.to}}
-              </div>
-              <div class="hash-object-div overflow-text">
-                Transaction Index:
-                <span>{{ txObject.transactionIndex}}</span>
-              </div>
-              <div class="hash-object-div overflow-text">
-                V:
-                <span>{{ txObject.v}}</span>
-              </div>
-              <div class="hash-object-div overflow-text last">
-                Value:
-                <span>{{ txObject.value}}</span>
-              </div>
-              <div class="hash-stat">
-                The function hash for the selected hash is
-                <span
-                  class="hash-stat-span"
-                >{{ functionHash}}</span> and value is
-                <span class="hash-stat-span">{{ hashValue}}</span>.
+              <div class="hash-object-div">
+                <table class="details-table">
+                  <tbody>
+                    <tr>
+                      <th class="property-name">Time:</th>
+                      <td class="property-value">{{txObject.time}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Hash:</th>
+                      <td class="property-value">{{txObject.hash}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Block Number:</th>
+                      <td class="property-value">{{txObject.blockNumber}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Chain Id:</th>
+                      <td class="property-value">{{txObject.chainId}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">From:</th>
+                      <td class="property-value">{{txObject.from}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Gas:</th>
+                      <td class="property-value">{{txObject.gas}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Gas Price:</th>
+                      <td class="property-value">{{txObject.gasPrice}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Input:</th>
+                      <td class="property-value">{{txObject.input}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Nonce:</th>
+                      <td class="property-value">{{txObject.nonce}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Public Key:</th>
+                      <td class="property-value">{{txObject.publicKey}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">R:</th>
+                      <td class="property-value">{{txObject.r}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Raw:</th>
+                      <td class="property-value">{{txObject.raw}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">S:</th>
+                      <td class="property-value">{{txObject.s}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">StandardV:</th>
+                      <td class="property-value">{{txObject.standardV}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">To:</th>
+                      <td class="property-value">{{txObject.to}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Transaction Index:</th>
+                      <td class="property-value">{{txObject.transactionIndex}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">V:</th>
+                      <td class="property-value">{{txObject.v}}</td>
+                    </tr>
+                    <tr>
+                      <th class="property-name">Value:</th>
+                      <td class="property-value">{{txObject.value}}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-            <div class="no-data" v-else>No transaction hash selected.</div>
+            <div class="no-data" v-else>select an hash to see the transaction object</div>
           </div>
         </div>
       </div>
@@ -214,9 +237,7 @@ import Plotly from "plotly.js-dist";
 const Web3 = require("web3");
 // setting up the provider
 //const web3 = new Web3("ws://85.214.224.112:8547");
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider("ws://85.214.224.112:8547")
-);
+const web3 = new Web3("ws://localhost:7546");
 
 import {
   timeConverter,
@@ -229,7 +250,7 @@ export default {
   data() {
     return {
       accounts: [],
-      address: "0xB35ade92c443B3b111ddA47C6af8872110fB7a03",
+      address: "0x6eb0f5BD4c4B876c04e3ebFAD9cD43199Ba274F0",
       lastAddress: "",
       accountTitle: "",
       hashes: [],
@@ -238,18 +259,19 @@ export default {
       accountHashes: [],
       transactionObjects: [],
       functionHash: "",
+      functionName: "",
       hashValue: "",
       days: 1,
       blocksPerDay: 10,
       graphData: [],
       downloadData: [],
-      tease: new Date().toISOString().split("T")[0],
+      maxDate: new Date().toISOString().split("T")[0],
       startdate: new Date().toISOString().split("T")[0],
       enddate: new Date().toISOString().split("T")[0]
     };
   },
   methods: {
-    download_csv: function() {
+    download_csv() {
       this.downloadData = [];
       let functionHashString;
       let functionHash;
@@ -289,7 +311,7 @@ export default {
       downloader.download = "data.csv";
       downloader.click();
     },
-    plot: function() {
+    plot() {
       function toDate(ts) {
         return new Date(ts);
       }
@@ -305,20 +327,20 @@ export default {
         time.push(data.time);
         input.push(data.input);
       });
-      var trace1 = {
-        mode: "lines+markers",
-        x: time.map(toDate),
-        y: input,
-        line: {
-          shape: "linear",
-          color: "#009933"
-        },
-        type: "scatter"
-      };
+      const data = [
+        {
+          mode: "lines+markers",
+          x: time.map(toDate),
+          y: input,
+          line: {
+            shape: "linear",
+            color: "#009933"
+          },
+          type: "scatter"
+        }
+      ];
 
-      var data = [trace1];
-
-      var layout = {
+      const layout = {
         title: "Energy Production Values",
         font: { size: 12 },
         xaxis: {
@@ -347,9 +369,9 @@ export default {
         }
       };
 
-      Plotly.newPlot("myDiv", data, layout, { responsive: true });
+      Plotly.newPlot("plot", data, layout, { responsive: true });
     },
-    searchContract: async function(contractAddress, numberX) {
+    async searchContract(contractAddress, numberX) {
       let endBlockNumber = await web3.eth.getBlockNumber();
       let startBlockNumber = endBlockNumber - numberX;
       // loop through the blocks to get block transactions
@@ -360,46 +382,45 @@ export default {
          * var block = await web3.eth.getBlock(i, true);
          */
         let block = await web3.eth.getBlock(i, true);
-        // filter out empty blocks
-        if (block.transactions.length != 0) {
-          //console.log(block);
-          block.transactions.forEach(tx => {
-            // filter out transactions for a specific smart contract
-            if (contractAddress == tx.to) {
-              this.hashes.push(tx);
-              this.transactionObjects.push({
-                hash: tx.hash,
-                time: timeConverter(block.timestamp),
-                blockHash: tx.to,
-                blockNumber: tx.blockNumber,
-                chainId: tx.chainId,
-                // condition: x.condition,
-                // creates: x.creates,
-                from: tx.from,
-                gas: tx.gas,
-                gasPrice: tx.gasPrice,
-                input: tx.input,
-                nonce: tx.nonce,
-                publicKey: tx.publicKey,
-                r: tx.r,
-                raw: tx.raw,
-                s: tx.s,
-                standardV: tx.standardV,
-                to: tx.to,
-                transactionIndex: tx.transactionIndex,
-                v: tx.v,
-                value: tx.value
-              });
-              // check if address already exists in array
-              if (this.accounts.indexOf(tx.from) === -1) {
-                this.accounts.push(tx.from);
-              }
+
+        //console.log(block);
+        block.transactions.forEach(tx => {
+          //console.log(tx.to);
+          // filter out transactions for a specific smart contract
+          if (tx.to === contractAddress) {
+            this.hashes.push(tx);
+            this.transactionObjects.push({
+              hash: tx.hash,
+              time: timeConverter(block.timestamp),
+              blockHash: tx.to,
+              blockNumber: tx.blockNumber,
+              chainId: tx.chainId,
+              // condition: x.condition,
+              // creates: x.creates,
+              from: tx.from,
+              gas: tx.gas,
+              gasPrice: tx.gasPrice,
+              input: tx.input,
+              nonce: tx.nonce,
+              publicKey: tx.publicKey,
+              r: tx.r,
+              raw: tx.raw,
+              s: tx.s,
+              standardV: tx.standardV,
+              to: tx.to,
+              transactionIndex: tx.transactionIndex,
+              v: tx.v,
+              value: tx.value
+            });
+            // check if address already exists in array
+            if (this.accounts.indexOf(tx.from) === -1) {
+              this.accounts.push(tx.from);
             }
-          });
-        }
+          }
+        });
       }
     },
-    getAccounts: function() {
+    getAccounts() {
       this.hashes = [];
       this.accounts = [];
       this.days = 1;
@@ -416,7 +437,7 @@ export default {
       this.hashTitle = "";
     },
     // get tx hashes for a particlar account
-    getAccountHashes: function() {
+    getAccountHashes() {
       this.accountHashes = [];
       this.txObject = {};
       this.hashTitle = "";
@@ -457,7 +478,9 @@ export default {
       });
       // add background to selected account
       event.target.classList.add("active");
+      $(".placeholder").hide();
       this.plot();
+      $(".hash-stat").hide();
     },
     /*
      * display all hashes selected account from the above function
@@ -466,7 +489,7 @@ export default {
      * to compare with the array hashes accountHashes from above function
      */
 
-    getTxObject: async function() {
+    async getTxObject() {
       this.transactionObjects.forEach(txObj => {
         //seeg(x.blockNumber);
         if (txObj.hash === event.target.innerHTML) {
@@ -509,6 +532,17 @@ export default {
             this.txObject.input.length
           )
       );
+      // getting function name
+      switch (this.functionHash) {
+        case "f1f1ecb7":
+          this.functionName = "Energy Production";
+          break;
+        case "203aec33":
+          this.functionName = "Energy Consumption";
+          break;
+        default:
+          this.functionName = "Unknown";
+      }
       // slicing the long values
       // Object.keys(this.txObject).map(k => {
       //   if (this.txObject[k].length > 20) {
@@ -522,17 +556,16 @@ export default {
       });
       // add background to selected account
       event.target.classList.add("active");
+
+      $(".hash-stat").show();
     },
 
-    teaser: async function() {
-      //alert("Im teaser");
-
+    async checkStartDate() {
       let dateA = moment(this.startdate, "YYYY-MM-DD"); // replace format by your one
       let dateB = moment(this.enddate, "YYYY-MM-DD");
-      console.log(this.blocksPerDay);
+      //console.log(this.blocksPerDay);
       if (dateA.diff(dateB) === 0) {
         // do something if A is later than B
-
         this.days = 1;
         this.blocksPerDay = 10;
         this.blocksPerDay *= this.days;
@@ -548,13 +581,13 @@ export default {
         this.hashes = [];
         this.transactionObjects = [];
         this.searchContract(this.address, this.blocksPerDay);
-        console.log(this.days);
-        console.log(this.blocksPerDay);
+        //console.log(this.days);
+        //console.log(this.blocksPerDay);
       }
     }
   },
   // default search on page load
-  created: function() {
+  created() {
     this.getAccounts();
   }
 };
@@ -647,6 +680,7 @@ input[type="date"]::-webkit-outer-spin-button {
 .main-body {
   display: flex;
   flex-direction: column;
+  padding: 2rem;
 }
 
 .main {
@@ -731,20 +765,116 @@ button {
   min-height: 300px;
   width: 100%;
   padding: 20px;
+  height: 405px;
+}
+
+/* disable plotly toolbar */
+
+.modebar {
+  display: none !important;
+}
+
+.placeholder {
+  text-align: center;
+  line-height: 300px;
+}
+
+h5 {
+  color: #bbbbbb;
 }
 
 .hashes {
   display: flex;
   justify-content: space-between;
   padding: 2rem;
-  background: rgb(235, 231, 231);
 }
 
 .tx-hashes,
 .tx-object {
-  width: 45%;
   display: flex;
   flex-direction: column;
+}
+
+.tx-hashes {
+  width: 40%;
+}
+
+.tx-object {
+  width: 55%;
+}
+
+.hash-stat {
+  display: flex;
+  flex-direction: column;
+  background: rgb(228, 222, 222);
+  border: #bbbab8 1px solid;
+  border-radius: 2px;
+  padding: 0.5rem;
+  margin-top: auto;
+  display: none;
+}
+
+.hash-object-div {
+  width: 100%;
+}
+
+.details-table {
+  padding: 0.5rem;
+  border: #d8d3d3 1px solid;
+  border-radius: 2px;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.property-name {
+  padding: 0.3rem;
+  background: #f2f0f3;
+  font-size: 0.8rem;
+  text-align: left;
+  width: 20%;
+  border: #d8d3d3 1px solid;
+  border-radius: 2px;
+}
+
+.property-value {
+  color: #394f7c;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hash-stat-name {
+  width: 40%;
+  background: none;
+  border: #976c09;
+  font-weight: normal;
+  text-align: left;
+}
+
+.hash-stat > p {
+  font-style: italic;
+  padding: 0;
+}
+
+.hash-stat-value {
+  font-size: 1.2rem;
+}
+
+.hash-stat-table,
+.hash-stat-value {
+  border: none;
+}
+
+td {
+  border-bottom: 1px solid #cccccc;
+}
+
+tbody > tr:last-child > td {
+  border-bottom: none;
 }
 
 .head-box {
@@ -772,9 +902,9 @@ button {
   overflow-y: auto;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   display: none;
-}
+} */
 
 .overflow-text {
   overflow: hidden;
@@ -791,17 +921,8 @@ button {
   padding: 0.5rem;
 }
 
-.hash-object-div {
-  font-weight: bold;
-}
-
 .last {
   padding-bottom: 1rem;
-}
-
-.hash-stat {
-  padding-top: 1rem;
-  border-top: 2px solid black;
 }
 
 span {
